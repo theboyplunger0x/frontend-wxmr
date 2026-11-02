@@ -1,0 +1,356 @@
+import type { Address } from "viem";
+
+export type SourceChainId =
+  | "monero"
+  | "ethereum"
+  | "bsc"
+  | "base"
+  | "arbitrum"
+  | "optimism"
+  | "polygon"
+  | "avalanche"
+  | "linea"
+  | "hyperevm"
+  | "monad"
+  | "sui"
+  | "hyperliquid"
+  | "solana"
+  | "bitcoin";
+
+export type SwapDirection = "mayan-to-xmr" | "xmr-to-mayan" | "asset-to-asset";
+export type ExecutionPolicy = "refund-on-slippage" | "execute-anyway";
+
+/**
+ * How the user funds an order.
+ * - "address": the order gets a per-order deposit address; the orchestrator
+ *   detects the deposit on-chain and executes the whole route itself. No
+ *   wallet connection needed — works for agents and exchange withdrawals.
+ * - "wallet": legacy flow where the user's connected wallet signs the
+ *   provider transactions (Mayan forwarder on EVM, Jupiter/bridge on Solana).
+ */
+export type FundingMode = "address" | "wallet";
+
+export type OrderStatus =
+  | "created"
+  | "awaiting_deposit"
+  | "bridging"
+  | "minted"
+  | "swapping"
+  | "withdrawing"
+  | "completed"
+  | "expired"
+  | "failed"
+  | "refunding"
+  | "refunded";
+
+export interface QuoteRequest {
+  direction?: SwapDirection;
+  sourceChain: SourceChainId;
+  sourceToken: string;
+  destinationChain?: SourceChainId;
+  destinationToken?: string;
+  amount: string;
+  sourceAddress?: string;
+  xmrAddress?: string;
+  destinationAddress?: string;
+  refundAddress?: string;
+  slippageBps?: number;
+  executionPolicy?: ExecutionPolicy;
+}
+
+export interface Quote {
+  id: string;
+  direction: SwapDirection;
+  sourceChain: SourceChainId;
+  sourceToken: string;
+  sourceTokenSymbol?: string;
+  sourceTokenDecimals?: number;
+  destinationChain?: SourceChainId;
+  destinationToken?: string;
+  inputAmount: string;
+  sourceAddress?: string;
+  xmrAddress: string;
+  destinationAddress?: string;
+  destinationTokenSymbol?: string;
+  destinationTokenDecimals?: number;
+  estimatedDestinationOut?: string;
+  minDestinationOut?: string;
+  refundAddress?: string;
+  estimatedWxmrOut: string;
+  estimatedXmrOut: string;
+  minWxmrOut: string;
+  minXmrOut: string;
+  bridgeFeeBps: number;
+  serviceFeeBps: number;
+  executionPolicy: ExecutionPolicy;
+  jupiterPriceImpactPct: string;
+  expiresAt: string;
+  route: "mayan" | "solana" | "thorchain" | "chainflip";
+  routeSummary?: string;
+  mayan?: MayanQuoteMetadata;
+  thorchain?: ThorchainQuoteMetadata;
+  chainflip?: ChainflipQuoteMetadata;
+}
+
+export function quoteOutputAmount(quote: Quote): string {
+  return quote.direction === "mayan-to-xmr"
+    ? quote.estimatedXmrOut
+    : quote.estimatedDestinationOut ?? "0";
+}
+
+export function quoteHasPositiveOutput(quote: Quote): boolean {
+  return BigInt(quoteOutputAmount(quote)) > BigInt(0);
+}
+
+export type FundingInstructions =
+  | MayanSwiftFunding
+  | SolanaDirectFunding
+  | SolanaTransferFunding
+  | DepositAddressFunding;
+
+export interface MayanQuoteMetadata {
+  quote: MayanSwiftQuote;
+  expectedSolanaUsdcOut: string;
+  minSolanaUsdcOut: string;
+  etaSeconds?: number;
+  clientEta?: string;
+  protocolBps?: number;
+  quoteId?: string;
+}
+
+export interface ThorchainQuoteMetadata {
+  mode: "direct-solana" | "direct-destination" | "eth-usdc-fallback" | "eth-usdc-destination";
+  fromAsset: string;
+  toAsset: string;
+  expectedOut: string;
+  expectedSolanaUsdcOut: string;
+  minSolanaUsdcOut: string;
+  inboundAddress: string;
+  memo: string;
+  expiry: number;
+  router?: string;
+  slippageBps?: number;
+  estimatedTimeSeconds?: number;
+  fees?: unknown;
+  mayan?: MayanQuoteMetadata;
+  directDestination?: boolean;
+}
+
+export interface ChainflipQuoteMetadata {
+  mode?: "direct-solana" | "direct-destination" | "eth-usdc-forward";
+  fromAsset: string;
+  toAsset: string;
+  quote: unknown;
+  expectedSolanaUsdcOut: string;
+  minSolanaUsdcOut: string;
+  slippageBps: number;
+  estimatedTimeSeconds?: number;
+  fees?: unknown;
+  directDestination?: boolean;
+  mayan?: MayanQuoteMetadata;
+}
+
+export interface MayanSwiftFunding {
+  type: "mayan-swift";
+  orderId: string;
+  chainId: SourceChainId;
+  chainNumericId: number;
+  token: Address;
+  tokenSymbol?: string;
+  tokenDecimals?: number;
+  tokenStandard?: string;
+  amount: string;
+  forwarder: Address;
+  destinationAddress: string;
+  mayanQuote: MayanSwiftQuote;
+  approve: {
+    spender: Address;
+    amount: string;
+  };
+}
+
+export interface MayanToken {
+  name?: string;
+  symbol?: string;
+  contract?: string;
+  mint?: string;
+  standard?: string;
+  verified?: boolean;
+  decimals?: number;
+  logoURI?: string;
+  chainId?: number;
+  wChainId?: number;
+  realOriginContractAddress?: string;
+  realOriginChainId?: number;
+}
+
+export interface MayanSwiftQuote {
+  type: "SWIFT";
+  swiftVersion: "V1" | "V2";
+  gasless: boolean;
+  quoteId?: string;
+  fromChain: string;
+  toChain: string;
+  fromToken: MayanToken;
+  toToken: MayanToken;
+  effectiveAmountIn64: string;
+  expectedAmountOutBaseUnits: string;
+  minAmountOutBaseUnits?: string;
+  minReceivedBaseUnits: string;
+  expectedAmountOut: number;
+  minAmountOut: number;
+  minReceived: number;
+  slippageBps: number;
+  etaSeconds?: number;
+  clientEta?: string;
+  protocolBps?: number;
+  bridgeFee?: number;
+  priceImpact?: number | null;
+  priceStat?: { status?: string; ratio?: number };
+  deadline64: string;
+  refundRelayerFee64?: string | null;
+  cancelRelayerFee64?: string | null;
+  submitRelayerFee64?: string | null;
+  swiftMayanContract?: string;
+  swiftAuctionMode?: number;
+  swiftInputContract: string;
+  swiftInputDecimals: number;
+  swiftWrapAndLock: boolean;
+  swiftInputContractStandard?: string;
+  minMiddleAmount?: number;
+  gasDrop?: number;
+  signature?: string;
+  [key: string]: unknown;
+}
+
+export interface MayanSwapDetails {
+  id?: string;
+  clientStatus?: string;
+  status?: string;
+  sourceTxHash?: string;
+  destinationTxHash?: string;
+  destTxHash?: string;
+  redeemTxHash?: string;
+  fulfillTxHash?: string;
+  settleTxHash?: string;
+  swapTxHash?: string;
+  destAddress?: string;
+  toTokenAddress?: string;
+  toTokenSymbol?: string;
+  toAmount?: string;
+  toAmount64?: string;
+  toAmountBaseUnits?: string;
+  error?: string;
+  [key: string]: unknown;
+}
+
+export interface SolanaTransferFunding {
+  type: "solana-transfer";
+  orderId: string;
+  chainId: "solana";
+  mint: string;
+  tokenSymbol?: string;
+  tokenDecimals?: number;
+  amount: string;
+  destinationTokenAccount: string;
+  destinationOwner: string;
+  memo: string;
+}
+
+export interface SolanaDirectFunding {
+  type: "solana-direct";
+  orderId: string;
+  chainId: "solana";
+  inputMint: string;
+  inputTokenSymbol?: string;
+  inputTokenDecimals?: number;
+  inputAmount: string;
+  wxmrMint: string;
+  expectedWxmrOut: string;
+  minWxmrOut: string;
+  xmrAddress: string;
+}
+
+export interface DepositAddressFunding {
+  type: "deposit-address";
+  orderId: string;
+  chainId: SourceChainId;
+  asset: string;
+  address: string;
+  memo?: string;
+  expiresAt: string;
+  expectedAmount?: string;
+  sourceAddress?: string;
+  provider?: string;
+  targetAsset?: string;
+  depositChannelId?: string;
+  channelOpeningFee?: string;
+  maxBoostFeeBps?: number;
+  depositOwner?: string;
+  depositPda?: string;
+  createSignature?: string;
+  assetSymbol?: string;
+  assetDecimals?: number;
+  /** True when the deposit asset is the chain's native coin (ETH, SOL, ...) rather than a token. */
+  native?: boolean;
+  /** Watcher state: base units seen at the deposit address, pending confirmation. */
+  detectedAmount?: string;
+  /** Watcher state: EVM block height at which detectedAmount was first observed. */
+  detectedAtBlock?: string;
+  /** Deposit transaction hash reported by the client; informational for address orders. */
+  depositTxHash?: string;
+  /** Watcher state: failed server-side execution attempts for this deposit. */
+  executionAttempts?: number;
+  /** Watcher state: timestamp of the last server-side execution attempt. */
+  lastExecutionAttemptAt?: string;
+  /** Crash recovery: Solana sweep signature persisted before broadcast. */
+  pendingSweepSignature?: string;
+  /** Crash recovery: amount the pending sweep moves, persisted before broadcast. */
+  pendingSweepAmount?: string;
+  /** Crash recovery: EVM Mayan forward tx hash persisted before broadcast. */
+  pendingForwardTxHash?: string;
+}
+
+export interface CreateOrderRequest {
+  quoteId: string;
+  sourceAddress?: string;
+  destinationAddress?: string;
+  refundAddress?: string;
+  xmrAddress?: string;
+  executionPolicy?: ExecutionPolicy;
+  /** Defaults to "address" for EVM and Solana sources when the orchestrator can host deposits. */
+  fundingMode?: FundingMode;
+}
+
+export interface Order {
+  id: string;
+  quoteId: string;
+  direction: SwapDirection;
+  status: OrderStatus;
+  sourceChain: SourceChainId;
+  sourceToken: string;
+  destinationChain?: SourceChainId;
+  destinationToken?: string;
+  amount: string;
+  xmrAddress: string;
+  destinationAddress?: string;
+  destinationTokenSymbol?: string;
+  destinationTokenDecimals?: number;
+  refundAddress?: string;
+  executionPolicy: ExecutionPolicy;
+  funding: FundingInstructions;
+  sourceTxHash?: string;
+  destinationAmount?: string;
+  solanaMintSignature?: string;
+  swapSignature?: string;
+  withdrawalSignature?: string;
+  withdrawalPda?: string;
+  error?: string;
+  createdAt: string;
+  updatedAt: string;
+  expiresAt: string;
+}
+
+export interface DepositReference {
+  txHash: string;
+}

@@ -1,0 +1,27 @@
+/* Black metal and restrained interference highlights, shared by landing and app. */
+.metal-panel{--metal-x:38%;--metal-y:22%;position:relative;isolation:isolate}
+.metal-panel:before{content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(128deg,#ffffff24 0%,#bbc8d310 18%,#d8c9e326 34%,#11111100 49%,#dec4a51a 68%,#cad8de2b 86%,#ffffff09 100%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;z-index:8;pointer-events:none}
+.metal-panel:after{content:'';position:absolute;inset:0;border-radius:inherit;background:radial-gradient(ellipse at var(--metal-x) var(--metal-y),#e2e7ef0a 0%,#e5d5f004 24%,transparent 60%),linear-gradient(118deg,transparent 22%,#e3e7ee03 34%,#ead9f705 39%,#e7dac304 44%,transparent 54%);opacity:.8;pointer-events:none;z-index:7;transition:opacity .5s}
+.metal-panel:hover:after{opacity:1}
+.journey-card.metal-panel,.activity-empty.metal-panel,.activity-demo.metal-panel{background:linear-gradient(135deg,#171717 0%,#090909 38%,#050505 66%,#111 100%);box-shadow:inset 0 1px 0 #ffffff08,inset 0 -1px 0 #ffffff05}
+.operation-card.metal-panel{background:linear-gradient(133deg,#161616,#090909 31%,#050505 65%,#111 100%);box-shadow:0 0 0 6px #ffffff02,0 0 0 7px #ffffff03,0 28px 80px #000,inset 0 1px 0 #ffffff12}
+.asset-row.metal-panel{background:linear-gradient(120deg,#171717,#080808 45%,#0d0d0d);box-shadow:inset 0 1px 0 #ffffff07}
+.direction-tabs button.selected{background:linear-gradient(155deg,#363638,#1c1c1e 58%,#272628);box-shadow:inset 0 1px 0 #ffffff1b,inset 0 -1px 0 #ffffff05,0 3px 9px #0006}
+.header nav .active{background:linear-gradient(140deg,#333335,#19191b);box-shadow:inset 0 1px 0 #ffffff18}
+.wallet-button,.nav-cta{background:linear-gradient(145deg,#222224,#0c0c0e 58%,#171719);border-color:#3c3c40;box-shadow:inset 0 1px 0 #ffffff0d}
+.vip-card:before{background:radial-gradient(ellipse at var(--light-x) var(--light-y),#ffffff23 0%,#d3ddf20c 19%,#dec6f608 33%,#ddc3a505 43%,transparent 65%)}
+.vip-reflection{background:linear-gradient(105deg,transparent 30%,#b3c9ed03 37%,#ffffff12 44%,#c1aff210 47%,#d1c6eb0c 49%,#eedac80a 52%,#ffffff06 55%,transparent 62%)}
+.vip-edge{border:1px solid #ccd2df15;box-shadow:inset 0 1px 1px #f0e8ff3b,inset 0 -1px 1px #d9e3ee12}
+.vip-monogram{filter:drop-shadow(0 2px 1px #000) drop-shadow(0 -1px 1px #c5c7d51a)}
+@media(prefers-reduced-motion:reduce){.metal-panel:after{transition:none}}
+
+/* A soft moving light, with the native cursor untouched. */
+.cursor-light{position:fixed;left:0;top:0;width:850px;height:850px;border-radius:50%;pointer-events:none;z-index:30;opacity:0;mix-blend-mode:screen;background:radial-gradient(ellipse at 50% 50%,#bdc5d20d 0%,#b4bfce07 20%,#b8c0cf03 39%,transparent 65%);transform:translate3d(-2000px,-2000px,0);transition:opacity .8s;will-change:transform;contain:strict}
+body.cursor-present .cursor-light{opacity:.8}body.landing-depth.cursor-present .cursor-light{opacity:1}
+.metal-panel:after{background:radial-gradient(ellipse at var(--metal-x) var(--metal-y),#dce3ee0e 0%,#ddd8e706 24%,transparent 62%),linear-gradient(118deg,transparent 22%,#e3e7ee03 34%,#ead9f704 39%,#e7dac303 44%,transparent 54%)}
+.landing-depth .hero{--field-x:70%;--field-y:30%;background:radial-gradient(ellipse at var(--field-x) var(--field-y),#1c1d20 0%,#0b0b0d 31%,#050505 70%)}
+.landing-depth .journey-card{transition:transform .5s cubic-bezier(.2,.7,.2,1),border-color .5s,box-shadow .5s}
+.landing-depth .journey-card:hover{transform:translateY(-3px);border-color:#45464b;box-shadow:0 17px 40px #0008,inset 0 1px 0 #ffffff12}
+.button,.wallet-button,.primary,.secondary{transition:background .3s,border-color .3s,box-shadow .3s}
+.button:hover,.wallet-button:hover,.secondary:hover{box-shadow:inset 0 1px 0 #ffffff1a,0 0 24px #c3cede08}
+@media(hover:none),(pointer:coarse){.cursor-light{display:none}.landing-depth .journey-card:hover{transform:none}}

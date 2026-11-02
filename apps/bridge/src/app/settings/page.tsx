@@ -1,0 +1,5 @@
+"use client";
+import { SolanaRpcSettings } from "@wxmr/shared";
+import { BridgeShell } from "@/components/BridgeShell";
+import Link from "next/link";
+export default function SettingsPage(){return <BridgeShell><main id="main" className="bridge-main settings-main"><div className="page-intro"><div><p className="eyebrow">Preferences</p><h1>Your connection.<br/><span>Your experience.</span></h1></div></div><div className="settings-grid"><section className="settings-card"><h2>Solana connection</h2><p>Choose the mainnet RPC provider used for wallet reads and transactions. Available without connecting a wallet.</p><SolanaRpcSettings/></section><section className="settings-card"><h2>Design review</h2><p>Explore isolated interface states without a wallet, live balances or transactions.</p><Link href="/demo" className="secondary-button">Open demonstration</Link></section><section className="settings-card"><h2>Previous design</h2><p>The previous local mockup is preserved. A complete Git snapshot of the original code is saved locally.</p><Link href="/original" className="secondary-button">View previous mockup</Link></section></div></main></BridgeShell>}

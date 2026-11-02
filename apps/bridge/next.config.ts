@@ -1,0 +1,37 @@
+import type { NextConfig } from "next";
+import path from "path";
+import envLoader from "../../scripts/load-wxmr-env.cjs";
+
+envLoader.loadWxmrEnv();
+
+// Standalone output (used only by the Docker image) runs heavy @vercel/nft
+// dependency tracing across the whole monorepo, which can peg CPU and OOM-kill
+// the build on small servers. It is OFF by default so `next start` / PM2 builds
+// stay light; the Dockerfile opts in via NEXT_OUTPUT_STANDALONE=1.
+const standalone = process.env.NEXT_OUTPUT_STANDALONE === "1";
+
+const nextConfig: NextConfig = {
+  // Keep local review artifacts separate from the normal release build.
+  distDir: process.env.WXMR_PREVIEW_DIST || ".next",
+  reactCompiler: true,
+  outputFileTracingRoot: path.join(__dirname, "../../"),
+  transpilePackages: ["@wxmr/shared", "@wxmr/core"],
+  async redirects() {
+    return [{
+      source: "/:path*",
+      has: [{ type: "host", value: "www.wxmr.io" }],
+      destination: "https://wxmr.io/:path*",
+      permanent: true,
+    }];
+  },
+  ...(standalone
+    ? {
+        output: "standalone",
+        // Trace from the monorepo root so the standalone build includes the
+        // workspace @wxmr/shared package and hoisted dependencies.
+        outputFileTracingRoot: path.join(__dirname, "../../"),
+      }
+    : {}),
+};
+
+export default nextConfig;

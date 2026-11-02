@@ -1,0 +1,1 @@
+export default function OriginalPage(){return <main style={{height:"100dvh",background:"#000"}}><a href="/" style={{display:"block",padding:"12px 24px",fontSize:14}}>Back to redesign · Preserved local mockup</a><iframe title="Preserved wXMR mockup" src="/reference/index.html" style={{width:"100%",height:"calc(100% - 48px)",border:0}} /></main>}

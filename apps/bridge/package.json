@@ -1,0 +1,52 @@
+{
+  "name": "@wxmr/bridge",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.16.0"
+  },
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "eslint",
+    "test:rpc": "tsx --test test/*.test.ts",
+    "test:analytics": "tsx --test test/analytics.test.ts"
+  },
+  "dependencies": {
+    "@bonfida/spl-name-service": "4.0.1",
+    "@coral-xyz/anchor": "^0.32.1",
+    "@jup-ag/referral-sdk": "^0.3.0",
+    "@noble/hashes": "^1.8.0",
+    "@solana/spl-token": "^0.4.14",
+    "@solana/wallet-adapter-base": "^0.9.27",
+    "@solana/wallet-adapter-react": "^0.15.39",
+    "@solana/wallet-adapter-react-ui": "^0.9.39",
+    "@solana/wallet-adapter-wallets": "^0.19.37",
+    "@solana/web3.js": "^1.98.4",
+    "@wxmr/core": "*",
+    "@wxmr/shared": "*",
+    "html5-qrcode": "^2.3.8",
+    "mmdb-lib": "3.0.3",
+    "next": "16.1.4",
+    "qrcode.react": "^4.2.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "@tanstack/react-query": "^5.90.12",
+    "viem": "^2.44.4",
+    "wagmi": "^2.19.4",
+    "buffer": "^6.0.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "babel-plugin-react-compiler": "1.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.4",
+    "tailwindcss": "^4",
+    "tsx": "^4.21.0",
+    "typescript": "^5"
+  }
+}

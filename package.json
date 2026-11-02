@@ -1,0 +1,27 @@
+{
+  "name": "frontend-wxmr",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22.16.0"
+  },
+  "scripts": {
+    "dev:noir": "python3 -m http.server 4176 --bind 127.0.0.1 --directory mockups/noir",
+    "build:core": "npm run build --workspace @wxmr/core",
+    "dev:metal": "npm run build:core && npm exec --workspace @wxmr/bridge -- next dev --hostname 127.0.0.1 --port 4180 --webpack",
+    "build:metal": "npm run build:core && npm run build --workspace @wxmr/bridge",
+    "start:metal": "npm exec --workspace @wxmr/bridge -- next start --hostname 127.0.0.1 --port 4180",
+    "dev:holo": "npm run dev --workspace @wxmr/exploration",
+    "build:holo": "npm run build --workspace @wxmr/exploration",
+    "start:holo": "npm run start --workspace @wxmr/exploration",
+    "build": "npm run build:metal && npm run build:holo",
+    "test:metal": "npm run test:rpc --workspace @wxmr/bridge"
+  },
+  "devDependencies": {
+    "dotenv": "^17.2.3"
+  }
+}
